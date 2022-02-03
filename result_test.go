@@ -13,7 +13,7 @@ func ExampleResult() {
 	fileLines := func(file string) ([]string, error) {
 		f := do.NewResult(os.Open(file))
 		limit := do.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
-		lines := do.MapErr(limit, func(r io.Reader) ([]string, error) {
+		lines := do.MapOrErr(limit, func(r io.Reader) ([]string, error) {
 			scanner := bufio.NewScanner(r)
 			var l []string
 			for scanner.Scan() {

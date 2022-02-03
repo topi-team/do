@@ -47,7 +47,7 @@ func Fold[T any](r Result[T], okFn func(T), errFn func(error)) {
 	}
 }
 
-func MapErr[T, newT any](r Result[T], fn func(T) (newT, error)) Result[newT] {
+func MapOrErr[T, newT any](r Result[T], fn func(T) (newT, error)) Result[newT] {
 	if r.IsError() {
 		return Result[newT]{
 			err: r.err,
