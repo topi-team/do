@@ -11,7 +11,7 @@ import (
 
 func ExampleResult() {
 	fileLines := func(file string) ([]string, error) {
-		f := do.Check(os.Open(file))
+		f := do.NewResult(os.Open(file))
 		limit := do.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
 		lines := do.MapErr(limit, func(r io.Reader) ([]string, error) {
 			scanner := bufio.NewScanner(r)
@@ -26,7 +26,7 @@ func ExampleResult() {
 	}
 
 	printResult := func(file string) {
-		res := do.Check(fileLines(file))
+		res := do.NewResult(fileLines(file))
 		do.Fold(
 			res,
 			func(lines []string) {

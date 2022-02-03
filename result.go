@@ -5,7 +5,7 @@ type Result[T any] struct {
 	err error
 }
 
-func Check[T any](v T, err error) Result[T] {
+func NewResult[T any](v T, err error) Result[T] {
 	return Result[T]{
 		val: v,
 		err: err,
