@@ -9,7 +9,7 @@ import (
 	"github.com/topi-team/is"
 )
 
-func ExampleEither() {
+func ExampleResult() {
 	fileLines := func(file string) ([]string, error) {
 		f := is.Check(os.Open(file))
 		limit := is.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
@@ -25,8 +25,21 @@ func ExampleEither() {
 		return lines.Return()
 	}
 
-	fmt.Printf("error: %s\n", is.Check(fileLines("missing")).Err())
-	fmt.Printf("value: %s\n", is.Check(fileLines("either.go")).Val()[0])
+	printResult := func(file string) {
+		res := is.Check(fileLines(file))
+		is.Fold(
+			res,
+			func(lines []string) {
+				fmt.Printf("value: %s\n", lines[0])
+			},
+			func(err error) {
+				fmt.Printf("error: %s\n", err)
+			},
+		)
+	}
+
+	printResult("missing")
+	printResult("result.go")
 	// Output:
 	// error: open missing: no such file or directory
 	// value: package is
