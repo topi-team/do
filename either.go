@@ -24,7 +24,7 @@ func (e Either[T]) Val() T {
 	return e.val
 }
 
-func (e Either[T]) Fold() (T, error) {
+func (e Either[T]) Return() (T, error) {
 	return e.val, e.err
 }
 

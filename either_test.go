@@ -22,7 +22,7 @@ func ExampleEither() {
 			return l, scanner.Err()
 		})
 
-		return lines.Fold()
+		return lines.Return()
 	}
 
 	fmt.Printf("error: %s\n", is.Check(fileLines("missing")).Err())
