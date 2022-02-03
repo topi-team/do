@@ -1,3 +1,3 @@
-module github.com/topi-team/is
+module github.com/topi-team/do
 
 go 1.18

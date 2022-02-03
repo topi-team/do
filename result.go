@@ -1,4 +1,4 @@
-package is
+package do
 
 type Result[T any] struct {
 	val T
@@ -39,11 +39,11 @@ func Map[T, newT any](r Result[T], fn func(T) newT) Result[newT] {
 	}
 }
 
-func Fold[T any](r Result[T], rightFn func(T), errFn func(error)) {
+func Fold[T any](r Result[T], okFn func(T), errFn func(error)) {
 	if r.IsError() {
 		errFn(r.err)
 	} else {
-		rightFn(r.val)
+		okFn(r.val)
 	}
 }
 

@@ -1,4 +1,4 @@
-package is_test
+package do_test
 
 import (
 	"bufio"
@@ -6,14 +6,14 @@ import (
 	"io"
 	"os"
 
-	"github.com/topi-team/is"
+	"github.com/topi-team/do"
 )
 
 func ExampleResult() {
 	fileLines := func(file string) ([]string, error) {
-		f := is.Check(os.Open(file))
-		limit := is.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
-		lines := is.MapErr(limit, func(r io.Reader) ([]string, error) {
+		f := do.Check(os.Open(file))
+		limit := do.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
+		lines := do.MapErr(limit, func(r io.Reader) ([]string, error) {
 			scanner := bufio.NewScanner(r)
 			var l []string
 			for scanner.Scan() {
@@ -26,8 +26,8 @@ func ExampleResult() {
 	}
 
 	printResult := func(file string) {
-		res := is.Check(fileLines(file))
-		is.Fold(
+		res := do.Check(fileLines(file))
+		do.Fold(
 			res,
 			func(lines []string) {
 				fmt.Printf("value: %s\n", lines[0])
@@ -42,5 +42,5 @@ func ExampleResult() {
 	printResult("result.go")
 	// Output:
 	// error: open missing: no such file or directory
-	// value: package is
+	// value: package do
 }
