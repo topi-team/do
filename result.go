@@ -109,3 +109,15 @@ func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[
 		err: newErr,
 	}
 }
+
+// Check will call the checkFn with the given value as long as the input result
+// is not an error.
+//
+// The returned Result will contain the error returned by checkFn.
+func Check[T any](input Result[T], checkFn func(T) error) Result[T] {
+	if input.IsError() {
+		return input
+	}
+	input.err = checkFn(input.val)
+	return input
+}
