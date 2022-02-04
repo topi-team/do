@@ -11,7 +11,7 @@ import (
 
 func ExampleResult() {
 	fileLines := func(file string) ([]string, error) {
-		f := do.NewResult(os.Open(file))
+		f := do.WithReturn(os.Open(file))
 		limit := do.Map(f, func(r *os.File) io.Reader { return io.LimitReader(r, 10000) })
 		lines := do.MapOrErr(limit, func(r io.Reader) ([]string, error) {
 			scanner := bufio.NewScanner(r)
@@ -26,7 +26,7 @@ func ExampleResult() {
 	}
 
 	printResult := func(file string) {
-		res := do.NewResult(fileLines(file))
+		res := do.WithReturn(fileLines(file))
 		do.Fold(
 			res,
 			func(lines []string) {
@@ -39,8 +39,8 @@ func ExampleResult() {
 	}
 
 	printResult("missing")
-	printResult("result.go")
+	printResult("result_test.go")
 	// Output:
 	// error: open missing: no such file or directory
-	// value: package do
+	// value: package do_test
 }
