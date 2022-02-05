@@ -1,5 +1,7 @@
 # do: cleaner error handling
 
+[![GoDoc](https://img.shields.io/badge/pkg.go.dev-doc-blue)](http://pkg.go.dev/github.com/topi-team/do)
+
 Package do leverages Go 1.18's generics to simplify error handling.
 
 ## Goals
@@ -113,7 +115,7 @@ limit := do.Map(r, func(r io.Reader) io.Reader { return io.LimitReader(r, 10) })
 
 ## Functions
 
-### func [Fold](/result.go#L114)
+### func [Fold](https://github.com/topi-team/do/blob/main/result.go#L114)
 
 `func Fold[T any](input Result[T], okFn func(T), errFn func(error))`
 
@@ -170,13 +172,13 @@ Body: {"Email":"ernesto@topi.eu","IsAdmin":false}
 
 ## Types
 
-### type [Result](/result.go#L4)
+### type [Result](https://github.com/topi-team/do/blob/main/result.go#L4)
 
 `type Result[T any] struct { ... }`
 
 Result encapsulates either a value of type T or an error.
 
-#### func [Check](/result.go#L126)
+#### func [Check](https://github.com/topi-team/do/blob/main/result.go#L126)
 
 `func Check[T any](input Result[T], checkFn func(T) error) Result[T]`
 
@@ -185,7 +187,7 @@ is not an error.
 
 The returned Result will contain the error returned by checkFn.
 
-#### func [Map](/result.go#L75)
+#### func [Map](https://github.com/topi-team/do/blob/main/result.go#L75)
 
 `func Map[T, newT any](input Result[T], mapFn func(T) newT) Result[newT]`
 
@@ -195,7 +197,7 @@ with the value returned by it.
 When input.IsError(), Map returns a result with input.Err() without calling
 the mapping function.
 
-#### func [MapOrErr](/result.go#L90)
+#### func [MapOrErr](https://github.com/topi-team/do/blob/main/result.go#L90)
 
 `func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[newT]`
 
@@ -203,7 +205,7 @@ MapOrErr is equivalent to Map, but mapFn can return an error.
 
 When mapFn returns an error, the returning Result will include that error.
 
-#### func [WithErrHandler](/result.go#L138)
+#### func [WithErrHandler](https://github.com/topi-team/do/blob/main/result.go#L138)
 
 `func WithErrHandler[T any](input Result[T], wrapFn func(error) error) Result[T]`
 
@@ -212,13 +214,13 @@ stored in the result.
 
 Subsequent calls to WithErrHandler will replace the existing handler.
 
-#### func [WithJust](/result.go#L33)
+#### func [WithJust](https://github.com/topi-team/do/blob/main/result.go#L33)
 
 `func WithJust[T any](val T) Result[T]`
 
 WithJust initialises a Result the given value.
 
-#### func [WithReturn](/result.go#L25)
+#### func [WithReturn](https://github.com/topi-team/do/blob/main/result.go#L25)
 
 `func WithReturn[T any](val T, err error) Result[T]`
 
@@ -231,20 +233,20 @@ Example:
 r := do.WithReturn(os.Open("file"))
 ```
 
-#### func (Result[T]) [Err](/result.go#L46)
+#### func (Result[T]) [Err](https://github.com/topi-team/do/blob/main/result.go#L46)
 
 `func (r Result[T]) Err() error`
 
 Err returns the encapsulated error. It returns nil if the Result
 is not an error.
 
-#### func (Result[T]) [IsError](/result.go#L40)
+#### func (Result[T]) [IsError](https://github.com/topi-team/do/blob/main/result.go#L40)
 
 `func (r Result[T]) IsError() bool`
 
 IsError returns true if the Result contains an error.
 
-#### func (Result[T]) [Return](/result.go#L66)
+#### func (Result[T]) [Return](https://github.com/topi-team/do/blob/main/result.go#L66)
 
 `func (r Result[T]) Return() (T, error)`
 
@@ -260,7 +262,7 @@ func(file string) (io.Reader, error) {
 }
 ```
 
-#### func (Result[T]) [Val](/result.go#L51)
+#### func (Result[T]) [Val](https://github.com/topi-team/do/blob/main/result.go#L51)
 
 `func (r Result[T]) Val() T`
 
@@ -393,3 +395,6 @@ func contentTypeJSON(r *http.Request) error {
 }
 
 ```
+
+---
+Readme created from Go doc with [goreadme](https://github.com/posener/goreadme)

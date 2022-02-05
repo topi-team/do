@@ -97,5 +97,4 @@ Instead, you must manually set the types:
 */
 package do
 
-// README.md generated with goreadme:
-// goreadme -credit=false -title="do: cleaner error handling" -types -methods -functions -factories > README.md"
+//go:generate ./scripts/generate_readme.sh
