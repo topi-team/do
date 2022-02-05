@@ -37,15 +37,18 @@ func (r Result[T]) IsError() bool {
 	return r.err != nil
 }
 
-// Err returns the encapsulated error. It returns nil if the Result is an
-// error.
+// Err returns the encapsulated error. It returns nil if the Result
+// is not an error.
 func (r Result[T]) Err() error {
 	return r.err
 }
 
-// Val returns the wrapped value. The returned value will be invalid if the
-// Result contains an error.
+// Val returns the wrapped value. Val will panic when result
+// IsError.
 func (r Result[T]) Val() T {
+	if r.IsError() {
+		panic("called Val for result that IsError")
+	}
 	return r.val
 }
 
@@ -77,6 +80,22 @@ func Map[T, newT any](input Result[T], mapFn func(T) newT) Result[newT] {
 	}
 }
 
+// MapOrErr is equivalent to Map, but mapFn can return an error.
+//
+// When mapFn returns an error, the returning Result will include that error.
+func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[newT] {
+	if input.IsError() {
+		return Result[newT]{
+			err: input.err,
+		}
+	}
+	newVal, newErr := mapFn(input.val)
+	return Result[newT]{
+		val: newVal,
+		err: newErr,
+	}
+}
+
 // Fold takes an input Result and will call either okFn or errFn depending on
 // whether input.IsError().
 //
@@ -91,22 +110,6 @@ func Fold[T any](input Result[T], okFn func(T), errFn func(error)) {
 		errFn(input.err)
 	} else {
 		okFn(input.val)
-	}
-}
-
-// MapOrErr is equivalent to Map, but mapFn can return an error.
-//
-// When mapFn returns an error, the returning Result will include that error.
-func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[newT] {
-	if input.IsError() {
-		return Result[newT]{
-			err: input.err,
-		}
-	}
-	newVal, newErr := mapFn(input.val)
-	return Result[newT]{
-		val: newVal,
-		err: newErr,
 	}
 }
 
