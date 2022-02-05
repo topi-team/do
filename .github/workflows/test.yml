@@ -23,14 +23,11 @@ jobs:
         cp $(which go1.18beta2) $(which go)
         go version
 
-    - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@v2
-      with:
-        go_version: 1.18beta2
-        reporter: github-pr-review
-        filter_mode: nofilter
-        golangci_lint_flags: '--config=.golangci.yml'
-        fail_on_error: true
+    - name: Build
+      run: go build ./...
+
+    - name: Vet
+      run: go vet ./...
 
     - name: Test
       run: go test -v ./...
