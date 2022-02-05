@@ -65,9 +65,11 @@ func PostCreate(rw http.ResponseWriter, req *http.Request) {
 }
 ```
 
-Here is an example of a function to be used in `MapOrErr`:
+Here is an example of a function that can be used with `MapOrErr` or as a
+stand-alone validator:
 
 ```go
+// notice the function signature makes no reference to this package.
 func validRequest(method, path string) func(req *http.Request) error {
 	return func(req *http.Request) error {
 		r := do.WithJust(req)
@@ -111,7 +113,7 @@ limit := do.Map(r, func(r io.Reader) io.Reader { return io.LimitReader(r, 10) })
 
 ## Functions
 
-### func [Fold](/result.go#L113)
+### func [Fold](/result.go#L114)
 
 `func Fold[T any](input Result[T], okFn func(T), errFn func(error))`
 
@@ -174,7 +176,7 @@ Body: {"Email":"ernesto@topi.eu","IsAdmin":false}
 
 Result encapsulates either a value of type T or an error.
 
-#### func [Check](/result.go#L125)
+#### func [Check](/result.go#L126)
 
 `func Check[T any](input Result[T], checkFn func(T) error) Result[T]`
 
@@ -183,7 +185,7 @@ is not an error.
 
 The returned Result will contain the error returned by checkFn.
 
-#### func [Map](/result.go#L74)
+#### func [Map](/result.go#L75)
 
 `func Map[T, newT any](input Result[T], mapFn func(T) newT) Result[newT]`
 
@@ -193,7 +195,7 @@ with the value returned by it.
 When input.IsError(), Map returns a result with input.Err() without calling
 the mapping function.
 
-#### func [MapOrErr](/result.go#L89)
+#### func [MapOrErr](/result.go#L90)
 
 `func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[newT]`
 
@@ -201,7 +203,7 @@ MapOrErr is equivalent to Map, but mapFn can return an error.
 
 When mapFn returns an error, the returning Result will include that error.
 
-#### func [WithErrHandler](/result.go#L137)
+#### func [WithErrHandler](/result.go#L138)
 
 `func WithErrHandler[T any](input Result[T], wrapFn func(error) error) Result[T]`
 
@@ -210,35 +212,39 @@ stored in the result.
 
 Subsequent calls to WithErrHandler will replace the existing handler.
 
-#### func [WithJust](/result.go#L32)
+#### func [WithJust](/result.go#L33)
 
 `func WithJust[T any](val T) Result[T]`
 
 WithJust initialises a Result the given value.
 
-#### func [WithReturn](/result.go#L24)
+#### func [WithReturn](/result.go#L25)
 
 `func WithReturn[T any](val T, err error) Result[T]`
 
 WithReturn is a short-hand to create a Result wrapping a function that
 returns a value and an error.
 
-Example: r := do.WithReturn(os.Open("file"))
+Example:
 
-#### func (Result[T]) [Err](/result.go#L45)
+```go
+r := do.WithReturn(os.Open("file"))
+```
+
+#### func (Result[T]) [Err](/result.go#L46)
 
 `func (r Result[T]) Err() error`
 
 Err returns the encapsulated error. It returns nil if the Result
 is not an error.
 
-#### func (Result[T]) [IsError](/result.go#L39)
+#### func (Result[T]) [IsError](/result.go#L40)
 
 `func (r Result[T]) IsError() bool`
 
 IsError returns true if the Result contains an error.
 
-#### func (Result[T]) [Return](/result.go#L65)
+#### func (Result[T]) [Return](/result.go#L66)
 
 `func (r Result[T]) Return() (T, error)`
 
@@ -254,7 +260,7 @@ func(file string) (io.Reader, error) {
 }
 ```
 
-#### func (Result[T]) [Val](/result.go#L50)
+#### func (Result[T]) [Val](/result.go#L51)
 
 `func (r Result[T]) Val() T`
 
