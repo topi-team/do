@@ -1,11 +1,3 @@
-// Package do leverages Go 1.18's generics to simplify error handling.
-//
-// As the Errors are values blogpost says:
-//  > Use the language to simplify your error handling.
-//  >
-//  > But remember: Whatever you do, always check your errors!
-//
-// https://go.dev/blog/errors-are-values
 package do
 
 // Result encapsulates either a value of type T or an error.
@@ -28,7 +20,8 @@ func (r Result[T]) handleErr(err error) error {
 // WithReturn is a short-hand to create a Result wrapping a function that
 // returns a value and an error.
 //
-// Example: r := do.WithReturn(os.Open("file"))
+// Example:
+//  r := do.WithReturn(os.Open("file"))
 func WithReturn[T any](val T, err error) Result[T] {
 	return Result[T]{
 		val: val,
@@ -54,8 +47,7 @@ func (r Result[T]) Err() error {
 	return r.err
 }
 
-// Val returns the wrapped value. Val will panic when result
-// IsError.
+// Val returns the wrapped value. Val will panic when result is an error.
 func (r Result[T]) Val() T {
 	if r.IsError() {
 		panic("called Val for result that IsError")
