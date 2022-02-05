@@ -18,38 +18,18 @@ As the Errors are values blogpost says:
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/topi-team/do"
 )
 
-const maxBodyLength = 10240
-
-type InvalidRequest struct {
-	msg  string
-	code int
-}
-
-func (err InvalidRequest) Error() string {
-	return err.msg
-}
-
 type User struct {
 	Email   string
 	IsAdmin bool
-}
-
-func testRequest(method, path, body string) (*httptest.ResponseRecorder, *http.Request) {
-	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(method, path, bytes.NewBufferString(body))
-	req.Header.Add("content-type", "application/json")
-	return rec, req
 }
 
 func main() {
