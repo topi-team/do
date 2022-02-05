@@ -1,11 +1,3 @@
-// Package do leverages Go 1.18's generics to simplify error handling.
-//
-// As the Errors are values blogpost says:
-//  > Use the language to simplify your error handling.
-//  >
-//  > But remember: Whatever you do, always check your errors!
-//
-// https://go.dev/blog/errors-are-values
 package do
 
 // Result encapsulates either a value of type T or an error.
@@ -54,8 +46,7 @@ func (r Result[T]) Err() error {
 	return r.err
 }
 
-// Val returns the wrapped value. Val will panic when result
-// IsError.
+// Val returns the wrapped value. Val will panic when result is an error.
 func (r Result[T]) Val() T {
 	if r.IsError() {
 		panic("called Val for result that IsError")

@@ -91,7 +91,7 @@ func validRequest(method, path string) func(req *http.Request) error {
 		r = do.Check(r, acceptsJSON)
 		r = do.Check(r, contentTypeJSON)
 		r = do.Check(r, requestMatch(req.URL.Path, path, http.StatusNotFound))
-		r = do.Check(r, requestMatch(req.Method, method, http.StatusNotFound))
+		r = do.Check(r, requestMatch(req.Method, method, http.StatusMethodNotAllowed))
 		return r.Err()
 	}
 }
