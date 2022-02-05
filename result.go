@@ -20,7 +20,8 @@ func (r Result[T]) handleErr(err error) error {
 // WithReturn is a short-hand to create a Result wrapping a function that
 // returns a value and an error.
 //
-// Example: r := do.WithReturn(os.Open("file"))
+// Example:
+//  r := do.WithReturn(os.Open("file"))
 func WithReturn[T any](val T, err error) Result[T] {
 	return Result[T]{
 		val: val,

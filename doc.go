@@ -55,8 +55,10 @@ Here is an example of a hypothetical http.HandlerFunc to create a blogpost.
  	)
  }
 
-Here is an example of a function to be used in `MapOrErr`:
+Here is an example of a function that can be used with `MapOrErr` or as a
+stand-alone validator:
 
+ // notice the function signature makes no reference to this package.
  func validRequest(method, path string) func(req *http.Request) error {
  	return func(req *http.Request) error {
  		r := do.WithJust(req)
