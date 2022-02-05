@@ -3,8 +3,10 @@ package do_test
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -146,6 +148,39 @@ func TestFold(t *testing.T) {
 	})
 }
 
+func ExampleFold() {
+	echoUser := func(rw http.ResponseWriter, r *http.Request) {
+		req := do.WithJust(r)
+		req = do.Check(req, validRequest("POST", "/echo"))
+		body := do.Map(req, bodyWithLimit)
+		user := do.MapOrErr(body, decodeUser)
+
+		do.Fold(
+			user,
+			encode[User](rw),
+			encodeError(rw),
+		)
+	}
+
+	func() {
+		rec, req := testRequest("POST", "/echo", "invalid")
+		echoUser(rec, req)
+		fmt.Printf("Status: %d\nBody: %s\n", rec.Result().StatusCode, rec.Body.String())
+	}()
+
+	func() {
+		rec, req := testRequest("POST", "/echo", `{"email":"ernesto@topi.eu"}`)
+		echoUser(rec, req)
+		fmt.Printf("Status: %d\nBody: %s\n", rec.Result().StatusCode, rec.Body.String())
+	}()
+	// Output:
+	// Status: 400
+	// Body: invalid character 'i' looking for beginning of value
+	//
+	// Status: 200
+	// Body: {"Email":"ernesto@topi.eu","IsAdmin":false}
+}
+
 func TestCheck(t *testing.T) {
 	t.Run("Successful check", func(t *testing.T) {
 		r := do.WithJust("example")
@@ -181,6 +216,70 @@ func TestVal(t *testing.T) {
 		require.Panics(t, func() {
 			r.Val()
 		})
+	})
+}
+
+func TestWithErrHandler(t *testing.T) {
+	t.Run("Wrap MapOrErr error", func(t *testing.T) {
+		var calls int
+		r := do.WithJust(true)
+		r = do.WithErrHandler(r, func(err error) error {
+			calls++
+			return fmt.Errorf("wrapped: %w", err)
+		})
+		res := do.MapOrErr(r, func(bool) (io.Reader, error) {
+			return testStub("fail")
+		})
+		require.Equal(t, 1, calls)
+		require.True(t, res.IsError())
+		require.True(t, strings.HasPrefix(res.Err().Error(), "wrapped: "))
+	})
+
+	t.Run("Wrap Check error", func(t *testing.T) {
+		var calls int
+		r := do.WithJust(true)
+		r = do.WithErrHandler(r, func(err error) error {
+			calls++
+			return fmt.Errorf("wrapped: %w", err)
+		})
+		r = do.Check(r, func(bool) error {
+			return errors.New("fail")
+		})
+		require.Equal(t, 1, calls)
+		require.True(t, r.IsError())
+		require.Equal(t, r.Err().Error(), "wrapped: fail")
+	})
+
+	t.Run("Wrap only once", func(t *testing.T) {
+		var calls int
+		r := do.WithJust(true)
+		r = do.WithErrHandler(r, func(err error) error {
+			calls++
+			return fmt.Errorf("wrapped: %w", err)
+		})
+		r = do.Check(r, func(bool) error { return errors.New("fail") })
+		r = do.Check(r, func(bool) error { return errors.New("fail") })
+		res := do.MapOrErr(r, func(bool) (io.Reader, error) { return testStub("fail") })
+		res = do.MapOrErr(res, func(io.Reader) (io.Reader, error) { return testStub("fail") })
+		require.Equal(t, 1, calls)
+		require.True(t, res.IsError())
+		require.Equal(t, res.Err().Error(), "wrapped: fail")
+	})
+
+	t.Run("Handler passed on by Map, MapOrErr, and Check", func(t *testing.T) {
+		var calls int
+		r := do.WithJust(true)
+		r = do.WithErrHandler(r, func(err error) error {
+			calls++
+			return fmt.Errorf("wrapped: %w", err)
+		})
+		r = do.Check(r, func(bool) error { return nil })
+		res := do.MapOrErr(r, func(bool) (io.Reader, error) { return testStub("example") })
+		res = do.Map(res, func(r io.Reader) io.Reader { return io.LimitReader(r, 10) })
+		res = do.Check(res, func(io.Reader) error { return errors.New("fail") })
+		require.Equal(t, 1, calls)
+		require.True(t, res.IsError())
+		require.Equal(t, res.Err().Error(), "wrapped: fail")
 	})
 }
 

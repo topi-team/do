@@ -12,6 +12,17 @@ package do
 type Result[T any] struct {
 	val T
 	err error
+	errHandler func(error) error
+}
+
+func (r Result[T]) handleErr(err error) error {
+	if err == nil {
+		return nil
+	}
+	if r.errHandler == nil {
+		return err
+	}
+	return r.errHandler(err)
 }
 
 // WithReturn is a short-hand to create a Result wrapping a function that
@@ -77,6 +88,7 @@ func Map[T, newT any](input Result[T], mapFn func(T) newT) Result[newT] {
 	}
 	return Result[newT]{
 		val: mapFn(input.val),
+		errHandler: input.errHandler,
 	}
 }
 
@@ -92,12 +104,14 @@ func MapOrErr[T, newT any](input Result[T], mapFn func(T) (newT, error)) Result[
 	newVal, newErr := mapFn(input.val)
 	return Result[newT]{
 		val: newVal,
-		err: newErr,
+		err: input.handleErr(newErr),
+		errHandler: input.errHandler,
 	}
 }
 
 // Fold takes an input Result and will call either okFn or errFn depending on
-// whether input.IsError().
+// whether input.IsError(). Fold is convenient in functions that don't return
+// anything such as http.HandlerFunc.
 //
 // It's a short-hand for the following code:
 //  if input.IsError() {
@@ -121,6 +135,18 @@ func Check[T any](input Result[T], checkFn func(T) error) Result[T] {
 	if input.IsError() {
 		return input
 	}
-	input.err = checkFn(input.val)
+	input.err = input.handleErr(checkFn(input.val))
 	return input
+}
+
+// WithErrHandler returns a Result that will call wrapFn when an error is later
+// stored in the result.
+//
+// Subsequent calls to WithErrHandler will replace the existing handler.
+func WithErrHandler[T any](input Result[T], wrapFn func(error) error) Result[T] {
+	return Result[T]{
+		val: input.val,
+		err: input.err,
+		errHandler: wrapFn,
+	}
 }
